@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/skywalkeretw/auth/auth-service/models"
+	"github.com/skywalkeretw/auth/models"
 	"log"
 	"net/http"
 	"os"
