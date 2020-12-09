@@ -3,14 +3,14 @@ package auth
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/skywalkeretw/auth/models"
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/skywalkeretw/auth/auth-service/models"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-	jwt "github.com/dgrijalva/jwt-go"
 )
 
 func CreateToken(user models.User) (string, error) {

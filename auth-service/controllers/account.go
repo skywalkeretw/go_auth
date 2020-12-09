@@ -3,9 +3,9 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/skywalkeretw/auth/auth"
-	"github.com/skywalkeretw/auth/models"
-	"github.com/skywalkeretw/auth/responses"
+	"github.com/skywalkeretw/auth/auth-service/auth"
+	"github.com/skywalkeretw/auth/auth-service/models"
+	"github.com/skywalkeretw/auth/auth-service/responses"
 	"golang.org/x/crypto/bcrypt"
 	"io/ioutil"
 	"net/http"

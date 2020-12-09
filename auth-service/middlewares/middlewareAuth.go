@@ -2,8 +2,8 @@ package middlewares
 
 import (
 	"errors"
-	"github.com/skywalkeretw/auth/auth"
-	"github.com/skywalkeretw/auth/responses"
+	"github.com/skywalkeretw/auth/auth-service/auth"
+	"github.com/skywalkeretw/auth/auth-service/responses"
 	"net/http"
 )
 

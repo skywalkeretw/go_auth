@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/skywalkeretw/auth/middlewares"
+	"github.com/skywalkeretw/auth/auth-service/middlewares"
 	"net/http"
 )
 

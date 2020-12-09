@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/skywalkeretw/auth/controllers"
+	"github.com/skywalkeretw/auth/auth-service/controllers"
 	"log"
 	"os"
 )

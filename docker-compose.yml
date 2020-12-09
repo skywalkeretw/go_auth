@@ -2,14 +2,14 @@ version: '3.7'
 services:
   user-service:
     container_name: user-service
-    build: .
+    build: ./auth-service
     env_file:
       - .env
     ports:
       - "8080:8080"
     restart: on-failure
     volumes:
-      - .:/usr/src/app/
+      - ./auth-service:/usr/src/app/
     depends_on:
       - user-postgres-db
     networks:
