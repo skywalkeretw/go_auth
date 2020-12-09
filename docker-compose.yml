@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  user-service:
+    container_name: user-service
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    volumes:
+      - .:/usr/src/app/
+    depends_on:
+      - user-postgres-db
+    networks:
+      - application
+
+  user-postgres-db:
+    image: postgres:latest
+    container_name: user_postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    networks:
+      - application
+
+
+# Networks to be created to facilitate communication between containers
+networks:
+  application:
+    driver: bridge
