@@ -15,17 +15,12 @@ type User struct {
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
 	Email     string    `gorm:"size:128;not null;unique" json:"email"`
 	Password  string    `gorm:"size:255;not null;" json:"password"`
+	Firstname string	`gorm:"size:255;not null;" json:"firstname"`
+	Lastname  string	`gorm:"size:255;not null;" json:"lastname"`
 	Type      string    `gorm:"size:255;not null;default:user" json:"type"`
+	Confirmed bool	    `gorm:"not null;default:false" json:"confirmed"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-}
-
-func Hash(password string) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-}
-
-func VerifyPassword(hashedPassword, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
 func (u *User) BeforeSave() error {
@@ -53,6 +48,12 @@ func (u *User) Validate(action string) error {
 		if u.Email == "" {
 			return errors.New("Required Email")
 		}
+		if u.Firstname == "" {
+			return errors.New("Required Firstname")
+		}
+		if u.Lastname == "" {
+			return errors.New("Required Lastname")
+		}
 		if err := checkmail.ValidateFormat(u.Email); err != nil {
 			return errors.New("Invalid Email")
 		}
@@ -76,6 +77,12 @@ func (u *User) Validate(action string) error {
 		}
 		if u.Email == "" {
 			return errors.New("Required Email")
+		}
+		if u.Firstname == "" {
+			return errors.New("Required Firstname")
+		}
+		if u.Lastname == "" {
+			return errors.New("Required Lastname")
 		}
 		if err := checkmail.ValidateFormat(u.Email); err != nil {
 			return errors.New("Invalid Email")
@@ -149,4 +156,12 @@ func (u *User) DeleteAUser(db *gorm.DB, uid uint32) (int64, error) {
 		return 0, db.Error
 	}
 	return db.RowsAffected, nil
+}
+
+func Hash(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+}
+
+func VerifyPassword(hashedPassword, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

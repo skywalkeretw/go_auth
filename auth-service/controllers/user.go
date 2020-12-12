@@ -8,12 +8,11 @@ import (
 	"github.com/skywalkeretw/auth/auth"
 	"github.com/skywalkeretw/auth/models"
 	"github.com/skywalkeretw/auth/responses"
+	"golang.org/x/crypto/bcrypt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 )
-
-
 
 func (server *Server) GetUsers(w http.ResponseWriter, r *http.Request) {
 
@@ -25,16 +24,16 @@ func (server *Server) GetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data:= []struct {
-		Email string `json:"email"`
-		Type string `json:"type"`
-	}{}
+	data := []models.UserData{}
 
-	for _, v := range *users {
-		data = append(data, struct {
-			Email string `json:"email"`
-			Type  string `json:"type"`
-		}{Email: v.Email, Type: v.Type})
+	for _, u := range *users {
+		data = append(data, models.UserData{
+			Fistname:  u.Firstname,
+			Lastname:  u.Lastname,
+			Email:     u.Email,
+			Type:      u.Type,
+			Confirmed: u.Confirmed,
+		})
 	}
 
 	responses.JSON(w, http.StatusOK, data)
@@ -126,4 +125,22 @@ func (server *Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Entity", fmt.Sprintf("%d", uid))
 	responses.JSON(w, http.StatusNoContent, "")
+}
+
+// SignIn uses the password and email to sign the user in
+func (server *Server) SignIn(email, password string) (string, error) {
+
+	var err error
+
+	user := models.User{}
+
+	err = server.DB.Debug().Model(models.User{}).Where("email = ?", email).Take(&user).Error
+	if err != nil {
+		return "", err
+	}
+	err = models.VerifyPassword(user.Password, password)
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return "", err
+	}
+	return auth.CreateToken(user)
 }

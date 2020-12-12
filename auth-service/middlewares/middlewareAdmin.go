@@ -3,7 +3,7 @@ package middlewares
 import (
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/skywalkeretw/auth/auth"
 	"github.com/skywalkeretw/auth/responses"
 	"log"
@@ -12,7 +12,7 @@ import (
 )
 
 func SetMiddlewareAdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return SetMiddlewareAuthentication(func(w http.ResponseWriter, r *http.Request) {
 
 		tokenString := auth.ExtractToken(r)
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -30,6 +30,7 @@ func SetMiddlewareAdminAuthentication(next http.HandlerFunc) http.HandlerFunc {
 			responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized not a admin"))
 			return
 		}
+
 		next(w, r)
-	}
+	})
 }

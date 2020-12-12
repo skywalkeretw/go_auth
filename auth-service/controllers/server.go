@@ -23,13 +23,11 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 		server.DB, err = gorm.Open(Dbdriver, DBURL)
 		if err != nil {
 			fmt.Printf("Cannot connect to %s database\n", Dbdriver)
-			log.Fatal("This is the error:", err , "\n")
+			log.Fatal("This is the error:", err, "\n")
 		} else {
 			fmt.Printf("We are connected to the %s database\n", Dbdriver)
 		}
 	}
-
-	//server.DB.Debug().AutoMigrate(&models.User{}, &models.Post{}) //database migration
 
 	server.Router = mux.NewRouter()
 
