@@ -16,20 +16,23 @@ import (
 func CreateToken(user models.User) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
+	claims["user_id"] = user.ID
 	claims["user_email"] = user.Email
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix() //Token expires after 1 hour
 	claims["acc_type"] = user.Type
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(os.Getenv("API_SECRET")))
 }
-/*func CreateConfirmToken(user models.User) (string, error) {
+
+func CreateConfirmToken(user models.User) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
-	claims["user_email"] = user.Email
-	claims["exp"] = time.Now().Add(time.Hour * 12).Unix() //Token expires after 12 hour
+	claims["confirm_user"] = true
+	claims["user_id"] = user.ID
+	claims["exp"] = time.Now().Add(time.Hour * 6).Unix() //Token expires after 12 hour
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(os.Getenv("API_SECRET")))
-}*/
+}
 
 func TokenValid(r *http.Request) error {
 	tokenString := ExtractToken(r)
@@ -83,7 +86,9 @@ func ExtractTokenID(r *http.Request) (uint32, error) {
 	}
 	return 0, nil
 }
-/*
+
+
+
 func GetClaims(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -101,7 +106,7 @@ func GetClaims(tokenString string) (jwt.MapClaims, error) {
 	}
 	return nil, fmt.Errorf("Error handling claims")
 }
-*/
+
 //Pretty display the claims licely in the terminal
 func Pretty(data interface{}) {
 	b, err := json.MarshalIndent(data, "", " ")

@@ -42,7 +42,7 @@ func (u *User) Prepare() {
 func (u *User) Validate(action string) error {
 	switch strings.ToLower(action) {
 	case "update":
-		if u.Password == "" {
+		/*if u.Password == "" {
 			return errors.New("Required Password")
 		}
 		if u.Email == "" {
@@ -56,7 +56,7 @@ func (u *User) Validate(action string) error {
 		}
 		if err := checkmail.ValidateFormat(u.Email); err != nil {
 			return errors.New("Invalid Email")
-		}
+		}*/
 
 		return nil
 	case "login":
@@ -65,6 +65,24 @@ func (u *User) Validate(action string) error {
 		}
 		if u.Email == "" {
 			return errors.New("Required Email")
+		}
+		if err := checkmail.ValidateFormat(u.Email); err != nil {
+			return errors.New("Invalid Email")
+		}
+		return nil
+
+	case "register":
+		if u.Password == "" {
+			return errors.New("Required Password")
+		}
+		if u.Email == "" {
+			return errors.New("Required Email")
+		}
+		if u.Firstname == "" {
+			return errors.New("Required Firstname")
+		}
+		if u.Lastname == "" {
+			return errors.New("Required Lastname")
 		}
 		if err := checkmail.ValidateFormat(u.Email); err != nil {
 			return errors.New("Invalid Email")
@@ -134,7 +152,34 @@ func (u *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
 		map[string]interface{}{
 			"password":  u.Password,
 			"email":     u.Email,
-			"update_at": time.Now(),
+			"confirmed": u.Confirmed,
+			"type":		 u.Type,
+			"firstname": u.Firstname,
+			"lastname":  u.Lastname,
+			"updated_at": time.Now(),
+		},
+	)
+	if db.Error != nil {
+		return &User{}, db.Error
+	}
+	// This is the display the updated user
+	err = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	return u, nil
+}
+
+func (u *User) ConfirmUser(db *gorm.DB, uid uint32) (*User, error) {
+	// To hash the password
+	err := u.BeforeSave()
+	if err != nil {
+		log.Fatal(err)
+	}
+	db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"confirmed": true,
+			"updated_at": time.Now(),
 		},
 	)
 	if db.Error != nil {
@@ -165,3 +210,27 @@ func Hash(password string) ([]byte, error) {
 func VerifyPassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
+
+/*func (u *User) ConfirmUser(db *gorm.DB, email string) (*User, error) {
+
+	// To hash the password
+	err := u.BeforeSave()
+	if err != nil {
+		log.Fatal(err)
+	}
+	db = db.Debug().Model(&User{}).Where("email = ?", email).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"confimed":  true,
+			"update_at": time.Now(),
+		},
+	)
+	if db.Error != nil {
+		return &User{}, db.Error
+	}
+	// This is the display the updated user
+	err = db.Debug().Model(&User{}).Where("email = ?", email).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	return u, nil
+}*/
