@@ -171,6 +171,7 @@ func (u *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
 }
 
 func (u *User) ConfirmUser(db *gorm.DB, uid uint32) (*User, error) {
+
 	// To hash the password
 	err := u.BeforeSave()
 	if err != nil {

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/skywalkeretw/auth/auth"
 	"github.com/skywalkeretw/auth/models"
@@ -9,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 // Login existing User
@@ -100,12 +100,19 @@ func (server *Server) ConfirmUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	userID, err := strconv.ParseUint(claims["user_id"].(string), 10 , 32)
-	if err != nil {
-		log.Println("cant convert id to uint", err)
+	log.Println("request: ", r)
+	log.Println("Claims: ", claims)
+
+	if claims["confirm_user"] != true {
+		responses.ERROR(w, http.StatusForbidden, errors.New("Can´t confirm User"))
 	}
+
+	//userID, err := strconv.ParseUint(claims["user_id"].(string), 10 , 32)
+	userID := uint32(claims["user_id"].(float64))
+	log.Printf("%T", userID)
+
 	user := models.User{}
-	updatedUser, err := user.ConfirmUser(server.DB, uint32(userID))
+	updatedUser, err := user.ConfirmUser(server.DB, userID)
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -113,7 +120,13 @@ func (server *Server) ConfirmUser(w http.ResponseWriter, r *http.Request) {
 	log.Println("Confirmed User:", updatedUser)
 
 	w.Header().Set("Location", fmt.Sprintf("%s%s", r.Host, r.RequestURI))
-	responses.JSON(w, http.StatusCreated, "")
+	responses.JSON(w, http.StatusCreated, models.UserData{
+		Fistname: 	updatedUser.Firstname,
+		Lastname:  updatedUser.Lastname,
+		Email:     updatedUser.Email,
+		Type:      updatedUser.Type,
+		Confirmed: updatedUser.Confirmed,
+	})
 }
 
 
